@@ -1,0 +1,3 @@
+[submodule "yannq"]
+	path = yannq
+	url = https://github.com/chaeyeunpark/yannq.git
