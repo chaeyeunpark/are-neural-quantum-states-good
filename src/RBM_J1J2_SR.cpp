@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 	using namespace yannq;
 	using nlohmann::json;
 
-	std::cout << std::setprecision(8);
+	std::cout << std::setprecision(10);
 
 	using ValT = std::complex<double>;
 

@@ -35,6 +35,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 endif()
 
 
+add_executable(RBM_XXZ_ER "src/RBM_XXZ_ER.cpp")
 add_executable(RBM_J1J2_SR "src/RBM_J1J2_SR.cpp")
 add_executable(RBM_J1J2_ER "src/RBM_J1J2_ER.cpp")
 add_executable(RBM_TXYZ_SR "src/RBM_TXYZ_SR.cpp")
