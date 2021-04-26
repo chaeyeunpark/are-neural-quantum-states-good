@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
 	auto randomizer = [N](auto& re)
 	{
-		return randomSigma(N, re);
+		return randomSigma(N, N/2, re);
 	};
 	auto sweeper = SwapSweeper{N, nDownSample};
 	auto sampler = runner.createSampler(sweeper, nTemp, nChainsPer);
