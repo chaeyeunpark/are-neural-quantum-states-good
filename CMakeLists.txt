@@ -6,7 +6,6 @@ project(are-neural-quantum-good)
 add_subdirectory("${PROJECT_SOURCE_DIR}/yannq")
 
 set(YANNQ_DIR "${PROJECT_SOURCE_DIR}/yannq")
-include_directories(${YANNQ_DIR}/Yannq)
 include_directories(${YANNQ_DIR}/externals)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -34,10 +33,21 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 	link_libraries(tbb stdc++ pthread m dl)
 endif()
 
+add_executable(RBM_XXZ_SR "src/RBM_XXZ_SR.cpp")
+target_link_libraries(RBM_XXZ_SR PRIVATE yannq)
 
 add_executable(RBM_XXZ_ER "src/RBM_XXZ_ER.cpp")
+target_link_libraries(RBM_XXZ_ER PRIVATE yannq)
+
 add_executable(RBM_J1J2_SR "src/RBM_J1J2_SR.cpp")
+target_link_libraries(RBM_J1J2_SR PRIVATE yannq)
+
 add_executable(RBM_J1J2_ER "src/RBM_J1J2_ER.cpp")
+target_link_libraries(RBM_J1J2_ER PRIVATE yannq)
+
 add_executable(RBM_TXYZ_SR "src/RBM_TXYZ_SR.cpp")
+target_link_libraries(RBM_TXYZ_SR PRIVATE yannq)
+
 add_executable(RBM_TXYZ_ER "src/RBM_TXYZ_ER.cpp")
+target_link_libraries(RBM_TXYZ_ER PRIVATE yannq)
 

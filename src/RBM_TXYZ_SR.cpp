@@ -74,9 +74,8 @@ int main(int argc, char** argv)
 	runner.setMomentum(beta1, beta2);
 	runner.initializeRandom(1e-3);
 	runner.setOptimizer(paramIn["optimizer"]);
-
 	runner.setIterParams(2000, 100);
-	
+
 	json out = runner.getParams();
 
 	auto dim = runner.getDim();

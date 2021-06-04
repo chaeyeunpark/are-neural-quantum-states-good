@@ -48,6 +48,7 @@ int main(int argc, char** argv)
 	runner.initializeRandom(1e-3);
 	runner.setIterParams(3000, 100);
 	runner.setOptimizer(paramIn["optimizer"]);
+	json out = runner.getParams();
 
 	
 	auto callback = [](int iterIdx, double currEnergy, double nv, double cgErr, auto tSampling, auto tSolving)
@@ -57,13 +58,7 @@ int main(int argc, char** argv)
 	};
 
 	J1J2 ham(N, 1.0, J2, signRule);
-
-	{
-		std::ofstream paramOut("paramOut.json");
-		json out = runner.getParams();
-		out["hamiltonian"] = ham.params();
-		paramOut << out << std::endl;
-	}
+	out["hamiltonian"] = ham.params();
 
 	auto dim = runner.getDim();
 
@@ -73,6 +68,13 @@ int main(int argc, char** argv)
 	};
 	auto sweeper = SwapSweeper{N, nDownSample};
 	auto sampler = runner.createSampler(sweeper, nTemp, nChainsPer);
+	out["sampler"] = sampler.desc();
+
+	{
+		std::ofstream paramOut("paramOut.json");
+		paramOut << out << std::endl;
+	}
+
 
 	runner.run(sampler, callback, randomizer, ham, dim, int(0.2*dim));
 	return 0;
