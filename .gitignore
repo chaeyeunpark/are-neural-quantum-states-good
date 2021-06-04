@@ -1,1 +1,4 @@
 release*
+debug*
+*/__pycache__/*
+env/
