@@ -5,7 +5,7 @@ import numpy as np
 from basis_numpy import Basis1DZ2
 
 from tree_utils import to_list
-
+from functools import partial
 
 def generate_full_confs(basis):
     N = basis.N
@@ -31,8 +31,9 @@ class ExactSampler:
         self._entropy = None
         self._model_output = None
 
-    def update_model_output(self, params):
-        self._model_output = jnp.ravel(jax.jit(self._model.apply)(params, self._symm_confs))
+    @partial(jax.jit, static_argnums=(0,))
+    def calc_model_cache(self, params):
+        return jnp.ravel(self._model.apply(params, self._symm_confs))
 
     @property
     def basis_degen(self):
@@ -50,33 +51,25 @@ class ExactSampler:
             self._entropy = -jnp.dot(self._data_symm_probs, log_probs)
         return self._entropy
 
-    def cross_entropy(self, params):
+    def cross_entropy(self):
         norm = jnp.dot(jnp.exp(self._model_output), self._basis_degen)
         return -jnp.dot(self._data_full_probs, log_model_probs) + jnp.log(norm)
 
-    def overlap(self, params):
-        model_probs = jnp.exp(jnp.ravel(self._model_output)) * self._basis_degen
+
+    @partial(jax.jit, static_argnums=(0,))
+    def overlap(self, model_cache):
+        model_probs = jnp.exp(model_cache) * self._basis_degen
         return jnp.dot(jnp.sqrt(model_probs), jnp.abs(self._basis.coeffs_tensor())) / jnp.sqrt(jnp.sum(model_probs))
 
-    def sample(self, key, params, batch_size):
-        model_symm_log_probs = self._model_output.squeeze() + jnp.log(self._basis_degen)
-        self._partition_function = jnp.sum(jnp.exp(model_symm_log_probs))
+    def sample(self, key, batch_size, model_cache):
+        model_log_probs = model_cache + jnp.log(self._basis_degen)
+        partition_function = jnp.sum(jnp.exp(model_log_probs.astype('float64')))
+
         key, key_r = jax.random.split(key)
-        indices = jax.random.categorical(key_r, model_symm_log_probs, shape=(batch_size,))
+        indices = jax.random.categorical(key_r, model_log_probs, shape=(batch_size,))
 
-        confs = []
-        probs = []
-
-        for idx in indices:
-            bvecs = self._basis.basis_vectors(idx)
-            key, key_r = jax.random.split(key)
-            random_v = jax.random.randint(key_r, (1,), 0, len(bvecs))
-            confs.append(self._basis.to_bin_array(self.N, bvecs[random_v.item()]))
-            probs.append(self._model_output[idx])
-        
+        confs = self._basis.sample_from_basis_vectors(indices)
         confs = jnp.vstack(confs)
-        probs = jnp.exp(jnp.array(probs))/self._partition_function
-        return probs, confs
 
-
+        return confs, partition_function
 

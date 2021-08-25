@@ -20,5 +20,6 @@ PYBIND11_MODULE(basis_numpy, m) {
 		.def("generate_batch_coeffs", &Basis1DZ2::generate_batch_coeffs)
 		.def("coeff", &Basis1DZ2::coeff)
         .def("coeffs_tensor", &Basis1DZ2::coeffs_tensor)
+		.def("sample_from_basis_vectors", &Basis1DZ2::sample_from_basis_vectors)
 		.def("basis_vectors", &Basis1DZ2::basis_vectors);
 }

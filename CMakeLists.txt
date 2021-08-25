@@ -9,6 +9,7 @@ endif()
 add_subdirectory(yannq)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/ExactDiagonalization/Include)
 
 set(CMAKE_CXX_STANDARD 17)
 set(LINK_WHAT_YOU_USE TRUE)
@@ -46,6 +47,9 @@ target_link_libraries(RBM_TXYZ_SR PRIVATE yannq)
 
 add_executable(RBM_TXYZ_ER "src/RBM/RBM_TXYZ_ER.cpp")
 target_link_libraries(RBM_TXYZ_ER PRIVATE yannq)
+
+add_executable(overlap_ed_rbm "src/overlap_ed_rbm.cpp")
+target_link_libraries(overlap_ed_rbm PRIVATE yannq)
 
 add_subdirectory(pybind11)
 pybind11_add_module(basis_numpy src/basis_numpy.cpp)

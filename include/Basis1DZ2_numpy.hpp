@@ -18,6 +18,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include <Eigen/Dense>
+
 namespace py = pybind11;
 
 void free_int8(void* p)
@@ -324,16 +326,54 @@ public:
         return py::array_t<double>({dim}, coeffs_.data());
     }
 
+	py::array_t<int8_t> sample_from_basis_vectors(py::array_t<int32_t> indices)
+	{
+		typedef Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic> Strides;
+
+        /* Request a buffer descriptor from Python */
+        py::buffer_info info = indices.request();
+
+        if (info.format != py::format_descriptor<int32_t>::format())
+            throw std::runtime_error("Incompatible format: expected a double array!");
+
+        if (info.ndim != 1)
+            throw std::runtime_error("Incompatible buffer dimension!");
+
+		uint32_t n_batch = info.shape[0];
+
+		int8_t* confs = new int8_t[n_batch*N_];
+
+		const int32_t stride = info.strides[0] / sizeof(int32_t);
+		tbb::parallel_for(size_t(0), size_t(n_batch), 
+				[&](size_t i)
+		{
+			int32_t idx = *((int32_t*)info.ptr + i*stride);
+			
+			auto bvecs = basis_vectors(idx);
+			std::uniform_int_distribution<> idist(0, bvecs.size()-1);
+			auto conf = bvecs[idist(re_.local())];
+
+			for(uint32_t k = 0; k < N_; ++k)
+			{
+				confs[i*N_ + k] = (conf >> k) & 1;
+			}
+		});
+
+		py::capsule free_confs_when_done(confs, free_int8);
+
+		return py::array_t<int8_t>({n_batch, N_}, confs, free_confs_when_done);
+	}
+
 	std::vector<uint64_t> basis_vectors(uint64_t idx) const
 	{
 		auto bvec = basis_->basisVec(idx);
 		std::vector<uint64_t> confs(bvec.size());
 
 		std::transform(bvec.begin(), bvec.end(), confs.begin(), 
-			[&](const std::pair<uint64_t, double>& p)
-		{
-			return p.first;
-		});
+				[&](const std::pair<uint64_t, double>& p)
+				{
+				return p.first;
+				});
 		return confs;
 	}
 
