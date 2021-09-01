@@ -1,5 +1,5 @@
 # Introduction
-This repository contains source codes for the paper "[Are neural quantum states good at solving non-stoquastic Hamiltonians](https://arxiv.org/abs/2012.08889)."
+This repository contains source code of the paper "[Are neural quantum states good at solving non-stoquastic Hamiltonians](https://arxiv.org/abs/2012.08889)."
 
 Exact diagonalization is implemented using our custom C++ library [ExactDiagonalization](https://github.com/chaeyeunpark/ExactDiagonalization) and Arpack interface [ArpackSolver.hpp](include/ArpackSolver.hpp). It saves the ground state in a binary format.
 
